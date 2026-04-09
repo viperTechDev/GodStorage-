@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>GodStorage — Sacred Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+:root {
+  --gold: #c9a84c;
+  --gold-light: #e8d08a;
+  --gold-dim: #7a6030;
+  --ivory: #f5f0e8;
+  --ivory-dim: #d6cdb8;
+  --deep: #0c1220;
+  --deep2: #111827;
+  --deep3: #1a2540;
+  --deep4: #243050;
+  --text: #e8dfc8;
+  --text-dim: #9a9080;
+  --red: #c0392b;
+  --green-soft: #2e7d52;
+  --radius: 14px;
+  --shadow: 0 8px 40px rgba(0,0,0,0.7);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--deep);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(180deg, #060d1a 0%, var(--deep3) 100%);
+  border-bottom: 1px solid var(--gold-dim);
+  padding: 28px 20px 20px;
+  text-align: center;
+  position: relative;
+}
+.cross-icon {
+  font-size: 28px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  margin-bottom: 8px;
+  display: block;
+  animation: glow 3s ease-in-out infinite alternate;
+}
+@keyframes glow {
+  from { text-shadow: 0 0 8px var(--gold-dim); }
+  to   { text-shadow: 0 0 22px var(--gold), 0 0 40px var(--gold-dim); }
+}
+.header h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(20px, 6vw, 28px);
+  font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: 2px;
+  line-height: 1.2;
+}
+.header .sub {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ivory-dim);
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+}
+.verse {
+  font-size: 12px;
+  color: var(--gold-dim);
+  margin-top: 10px;
+  font-style: italic;
+}
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--gold-dim);
+  background: var(--deep2);
+}
+.tab {
+  flex: 1;
+  padding: 14px 8px;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.25s;
+  user-select: none;
+}
+.tab.active {
+  color: var(--gold-light);
+  border-bottom-color: var(--gold);
+  background: rgba(201,168,76,0.06);
+}
+.tab:active { opacity: 0.7; }
+
+/* ── PANELS ── */
+.panel { display: none; padding: 20px 16px 40px; max-width: 600px; margin: 0 auto; }
+.panel.active { display: block; }
+
+/* ── SECTION CARDS ── */
+.card {
+  background: var(--deep3);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: var(--gold);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title .icon { font-size: 16px; }
+
+/* ── DROP ZONE ── */
+.dropzone {
+  border: 2px dashed var(--gold-dim);
+  border-radius: 10px;
+  padding: 28px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s;
+  background: rgba(201,168,76,0.03);
+  position: relative;
+}
+.dropzone.dragover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.1);
+}
+.dropzone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.dropzone .dz-icon { font-size: 32px; margin-bottom: 8px; display: block; color: var(--gold-dim); }
+.dropzone .dz-label {
+  font-size: 15px;
+  color: var(--ivory-dim);
+  font-style: italic;
+}
+.dropzone .dz-hint { font-size: 12px; color: var(--text-dim); margin-top: 5px; }
+.file-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(201,168,76,0.15); border: 1px solid var(--gold-dim);
+  border-radius: 20px; padding: 5px 12px; margin-top: 10px;
+  font-size: 13px; color: var(--gold-light); max-width: 100%; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ── INPUTS ── */
+.field-label {
+  font-size: 13px;
+  color: var(--ivory-dim);
+  margin-bottom: 6px;
+  margin-top: 14px;
+  display: block;
+  font-style: italic;
+}
+input[type=text], input[type=password] {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--deep2);
+  color: var(--text);
+  border: 1px solid var(--gold-dim);
+  border-radius: 8px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus { border-color: var(--gold); }
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-label {
+  font-size: 14px;
+  color: var(--ivory-dim);
+}
+.toggle-label small { display: block; font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+/* Toggle switch */
+.switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; inset: 0;
+  background: var(--deep4);
+  border-radius: 24px;
+  border: 1px solid var(--gold-dim);
+  transition: 0.3s;
+  cursor: pointer;
+}
+.slider:before {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  left: 3px; bottom: 3px;
+  background: var(--gold-dim);
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.switch input:checked + .slider { background: rgba(201,168,76,0.2); border-color: var(--gold); }
+.switch input:checked + .slider:before { transform: translateX(20px); background: var(--gold); }
+
+/* ── STRENGTH BAR ── */
+.strength-bar-wrap { margin-top: 8px; }
+.strength-track {
+  height: 4px; background: var(--deep4); border-radius: 4px; overflow: hidden;
+}
+.strength-fill {
+  height: 100%; width: 0%; border-radius: 4px;
+  transition: width 0.3s, background 0.3s;
+}
+.strength-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: block; width: 100%; padding: 15px;
+  border: none; border-radius: 10px;
+  font-family: 'Cinzel', serif;
+  font-size: 14px; letter-spacing: 1.5px;
+  cursor: pointer; margin-top: 14px;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.btn:active { transform: scale(0.98); }
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold-dim) 0%, var(--gold) 50%, var(--gold-dim) 100%);
+  color: var(--deep);
+  box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+}
+.btn-gold:hover { box-shadow: 0 6px 28px rgba(201,168,76,0.5); }
+.btn-light {
+  background: transparent;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold-light);
+}
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── PROGRESS ── */
+.progress-wrap { margin-top: 14px; display: none; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: var(--text-dim); margin-bottom: 6px;
+}
+.progress-track {
+  height: 6px; background: var(--deep4); border-radius: 6px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; width: 0%; border-radius: 6px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  transition: width 0.1s linear;
+}
+.progress-msg { font-size: 13px; color: var(--ivory-dim); margin-top: 8px; font-style: italic; }
+
+/* ── STATUS ── */
+.status-box {
+  border-radius: 10px; padding: 14px 16px; margin-top: 14px;
+  font-size: 14px; line-height: 1.7; display: none;
+}
+.status-box.success { background: rgba(46,125,82,0.15); border: 1px solid #2e7d52; color: #7ec8a0; }
+.status-box.error   { background: rgba(192,57,43,0.15); border: 1px solid var(--red); color: #e07060; }
+.status-box.info    { background: rgba(201,168,76,0.08); border: 1px solid var(--gold-dim); color: var(--gold-light); }
+
+/* ── QR ── */
+#qr-container {
+  margin-top: 14px; text-align: center; display: none;
+}
+#qr-container canvas, #qr-container img { border-radius: 8px; border: 2px solid var(--gold-dim); }
+.qr-note { font-size: 12px; color: var(--text-dim); margin-top: 6px; font-style: italic; }
+
+/* ── INFO TAB ── */
+.info-section { margin-bottom: 20px; }
+.info-section h3 {
+  font-family: 'Cinzel', serif; font-size: 13px;
+  color: var(--gold); letter-spacing: 1px; margin-bottom: 10px;
+}
+.info-section p {
+  font-size: 14px; color: var(--ivory-dim); line-height: 1.8;
+}
+.feature-list { list-style: none; padding: 0; }
+.feature-list li {
+  padding: 8px 0; border-bottom: 1px solid rgba(201,168,76,0.08);
+  font-size: 14px; color: var(--ivory-dim); display: flex; gap: 10px;
+}
+.feature-list li:last-child { border-bottom: none; }
+.feature-list .fi { color: var(--gold); flex-shrink: 0; }
+
+/* ── GOLDEN DIVIDER ── */
+.divider {
+  text-align: center; margin: 20px 0;
+  color: var(--gold-dim); font-size: 18px; letter-spacing: 8px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center; padding: 20px;
+  font-size: 11px; color: var(--text-dim);
+  border-top: 1px solid rgba(201,168,76,0.1);
+  font-style: italic;
+}
+
+/* Ripple */
+.ripple {
+  position: absolute; border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  transform: scale(0); animation: ripple 0.5s linear;
+  pointer-events: none;
+}
+@keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+/* ── HINT NOTES (new) ── */
+.option-hint {
+  font-size: 11.5px;
+  font-style: italic;
+  border-radius: 7px;
+  padding: 7px 11px;
+  margin-top: 6px;
+  margin-bottom: 2px;
+  line-height: 1.6;
+  display: none;
+}
+.option-hint.ok     { background: rgba(46,125,82,0.12);  border: 1px solid #2e7d52; color: #7ec8a0; }
+.option-hint.warn   { background: rgba(192,57,43,0.12);  border: 1px solid var(--red); color: #e07060; }
+.option-hint.info   { background: rgba(201,168,76,0.08); border: 1px solid var(--gold-dim); color: var(--gold-light); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="cross-icon">✦ ✝ ✦</span>
+  <h1>GODSTORAGE</h1>
+  <div class="sub">Sacred Vault · Any File · Total Privacy</div>
+  <div class="verse">"The truth shall make you free." — John 8:32</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('encode')">⬆ SEAL</div>
+  <div class="tab" onclick="switchTab('decode')">⬇ UNSEAL</div>
+  <div class="tab" onclick="switchTab('about')">✦ ABOUT</div>
+</div>
+
+<div class="panel active" id="panel-encode">
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📁</span> SELECT FILE(S)</div>
+    <div class="dropzone" id="enc-drop" ondragover="dzOver(event,'enc-drop')" ondragleave="dzOut('enc-drop')" ondrop="dzDrop(event,'enc-drop','encFiles')">
+      <input type="file" id="encFiles" multiple onchange="onEncFilePick()">
+      <span class="dz-icon">☁</span>
+      <div class="dz-label">Tap to choose or drag files here</div>
+      <div class="dz-hint">Any file type • Multiple files supported</div>
+    </div>
+    <div id="enc-file-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">⚙</span> VAULT OPTIONS</div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">
+        AES-256 Encryption
+        <small>Password-lock your vault</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="opt-encrypt" onchange="toggleEncryptUI()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div id="encrypt-fields" style="display:none">
+      <label class="field-label">Passphrase</label>
+      <input type="password" id="enc-pass" placeholder="Enter a strong passphrase…" oninput="updateStrength(this.value)">
+      <div class="strength-bar-wrap">
+        <div class="strength-track"><div class="strength-fill" id="str-fill"></div></div>
+        <div class="strength-label" id="str-label">—</div>
+      </div>
+    </div>
+
+    <div class="toggle-row" style="margin-top:10px">
+      <div class="toggle-label">
+        Camouflage Mode
+        <small>Blend into a real photo</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="opt-camo" onchange="toggleCamoUI()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div id="camo-fields" style="display:none">
+      <label class="field-label">Cover Image (any photo)</label>
+      <div class="dropzone" id="camo-drop" ondragover="dzOver(event,'camo-drop')" ondragleave="dzOut('camo-drop')" ondrop="dzDrop(event,'camo-drop','camoFile')">
+        <input type="file" id="camoFile" accept="image/*" onchange="onCamoPick()">
+        <span class="dz-icon">🖼</span>
+        <div class="dz-label">Choose a cover photo</div>
+      </div>
+      <div id="camo-badge"></div>
+      <div class="option-hint" id="camo-hint"></div>
+    </div>
+
+    <div class="toggle-row" style="margin-top:10px">
+      <div class="toggle-label">
+        Generate QR Code
+        <small>For small files (&lt; 2 KB)</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="opt-qr">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="option-hint" id="qr-hint"></div>
+
+  </div>
+
+  <button class="btn btn-gold" id="enc-btn" onclick="runEncode(this)">
+    ✦ SEAL INTO PNG
+  </button>
+
+  <div class="progress-wrap" id="enc-prog">
+    <div class="progress-label">
+      <span id="enc-prog-msg">Preparing…</span>
+      <span id="enc-prog-pct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="enc-prog-fill"></div></div>
+  </div>
+
+  <div class="status-box" id="enc-status"></div>
+
+  <div id="qr-container"><div id="qrcode"></div><div class="qr-note">QR encodes the PNG download link</div></div>
+
+</div>
+
+<div class="panel" id="panel-decode">
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔓</span> LOAD SEALED PNG</div>
+    <div class="dropzone" id="dec-drop" ondragover="dzOver(event,'dec-drop')" ondragleave="dzOut('dec-drop')" ondrop="dzDrop(event,'dec-drop','decFile')">
+      <input type="file" id="decFile" accept="image/png" onchange="onDecFilePick()">
+      <span class="dz-icon">📄</span>
+      <div class="dz-label">Select the sealed PNG</div>
+      <div class="dz-hint">Must be a GodStorage vault file</div>
+    </div>
+    <div id="dec-file-badge"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔑</span> PASSPHRASE</div>
+    <label class="field-label">Enter passphrase if encrypted (leave blank if not)</label>
+    <input type="password" id="dec-pass" placeholder="Passphrase (if sealed with encryption)…">
+  </div>
+
+  <button class="btn btn-gold" id="dec-btn" onclick="runDecode(this)">
+    ✦ UNSEAL & RESTORE
+  </button>
+
+  <div class="progress-wrap" id="dec-prog">
+    <div class="progress-label">
+      <span id="dec-prog-msg">Loading…</span>
+      <span id="dec-prog-pct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="dec-prog-fill"></div></div>
+  </div>
+
+  <div class="status-box" id="dec-status"></div>
+
+</div>
+
+<div class="panel" id="panel-about">
+
+  <div class="card">
+    <div class="card-title"><span class="icon">✝</span> THE MISSION</div>
+    <div class="info-section">
+      <p>GodStorage is a sacred digital vault — built on truth, privacy, and the belief that what is yours should remain yours. Hide any file inside an ordinary PNG image. No server. No tracking. 100% in your hands.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">✦</span> FEATURES</div>
+    <ul class="feature-list">
+      <li><span class="fi">📁</span> Any file type — PDF, DOCX, ZIP, code, audio, video</li>
+      <li><span class="fi">🗂</span> Multi-file — hide many files in one PNG</li>
+      <li><span class="fi">🔐</span> AES-256 encryption with password</li>
+      <li><span class="fi">💪</span> Live password strength meter</li>
+      <li><span class="fi">🖼</span> Camouflage mode — blend into a real photo</li>
+      <li><span class="fi">📲</span> QR code export for tiny files</li>
+      <li><span class="fi">📱</span> Mobile-first, works 100% offline</li>
+      <li><span class="fi">⚡</span> Chunked processing — never hangs</li>
+      <li><span class="fi">🔒</span> Zero servers, zero tracking, zero ads</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📖</span> HOW IT WORKS</div>
+    <div class="info-section">
+      <p>Your file's bytes are stored in the Red, Green, and Blue channels of PNG pixels. PNG is lossless — every byte is recovered perfectly. With camouflage, your data hides in the least significant bits of a real photo, making it visually indistinguishable from the original.</p>
+    </div>
+  </div>
+
+  <div class="divider">· · ✦ · ·</div>
+
+  <div style="text-align:center; font-style:italic; font-size:13px; color:var(--gold-dim)">
+    "For there is nothing hidden that will not be disclosed…"<br>
+    <span style="font-size:11px; color:var(--text-dim)">Luke 8:17</span>
+  </div>
+</div>
+
+<div class="footer">GodStorage v2 · Sacred Vault Edition · Built for Truth & Privacy</div>
+
+<script>
+// ══════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════
+
+// MAGIC bytes — first 4 bytes of every vault (standard mode)
+const MAGIC = [82,70,73,76]; // RFIL
+
+// CAMOUFLAGE magic — stored in LSBs of first 4 pixels
+const CAMO_MAGIC = [67,77,76,84];
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['encode','decode','about'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+// Drag-drop helpers
+function dzOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('dragover'); }
+function dzOut(id)      { document.getElementById(id).classList.remove('dragover'); }
+function dzDrop(e, id, inputId) {
+  e.preventDefault(); dzOut(id);
+  const inp = document.getElementById(inputId);
+  const dt = new DataTransfer();
+  Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
+  inp.files = dt.files;
+  if (inputId === 'encFiles') onEncFilePick();
+  if (inputId === 'camoFile') onCamoPick();
+  if (inputId === 'decFile')  onDecFilePick();
+}
+
+function fmtSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(2) + ' MB';
+}
+
+function showStatus(id, type, html) {
+  const el = document.getElementById(id);
+  el.className = 'status-box ' + type;
+  el.innerHTML = html.replace(/\n/g, '<br>');
+  el.style.display = 'block';
+}
+
+function setProgress(prefix, pct, msg) {
+  const wrap = document.getElementById(prefix+'-prog');
+  const fill = document.getElementById(prefix+'-prog-fill');
+  const pctEl = document.getElementById(prefix+'-prog-pct');
+  const msgEl = document.getElementById(prefix+'-prog-msg');
+  wrap.style.display = 'block';
+  fill.style.width = pct + '%';
+  pctEl.textContent = pct + '%';
+  if (msg) msgEl.textContent = msg;
+}
+
+function hideProgress(prefix) {
+  document.getElementById(prefix+'-prog').style.display = 'none';
+}
+
+// Ripple on buttons
+document.querySelectorAll('.btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.width = r.style.height = size + 'px';
+    r.style.left = (e.clientX - rect.left - size/2) + 'px';
+    r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+    btn.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  });
+});
+
+function yieldFrame() { return new Promise(r => setTimeout(r, 0)); }
+
+let _estimatedPayloadBytes = 0;
+
+// ── NEW TRICK: RAW IMAGE LOADER TO BYPASS MOBILE COLOR PROFILES ──
+async function loadRawImage(file) {
+  try {
+    // This stops Chrome/Safari from mathematically tweaking the image colors
+    return await createImageBitmap(file, {
+      premultiplyAlpha: 'none',
+      colorSpaceConversion: 'none'
+    });
+  } catch(e) {
+    // Fallback for extremely old browsers
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.src = url;
+    await new Promise((resolve, reject) => {
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('Failed to load raw image.'));
+    });
+    return img;
+  }
+}
+
+function onEncFilePick() {
+  const files = document.getElementById('encFiles').files;
+  const list  = document.getElementById('enc-file-list');
+  list.innerHTML = '';
+  if (!files.length) return;
+
+  let totalBytes = 0;
+  Array.from(files).forEach(f => {
+    totalBytes += f.size;
+    const badge = document.createElement('div');
+    badge.className = 'file-badge';
+    badge.innerHTML = `📄 <span>${f.name}</span> <span style="color:var(--text-dim);margin-left:4px">${fmtSize(f.size)}</span>`;
+    list.appendChild(badge);
+  });
+
+  _estimatedPayloadBytes = totalBytes + 8 + 32; 
+  updateQRHint();
+  updateCamoHint();
+}
+
+function onCamoPick() {
+  const f = document.getElementById('camoFile').files[0];
+  if (!f) return;
+  document.getElementById('camo-badge').innerHTML =
+    `<div class="file-badge">🖼 <span>${f.name}</span></div>`;
+  updateCamoHint();
+}
+
+function onDecFilePick() {
+  const f = document.getElementById('decFile').files[0];
+  if (!f) return;
+  document.getElementById('dec-file-badge').innerHTML =
+    `<div class="file-badge">📄 <span>${f.name}</span> <span style="color:var(--text-dim);margin-left:4px">${fmtSize(f.size)}</span></div>`;
+}
+
+function updateQRHint() {
+  const hint = document.getElementById('qr-hint');
+  if (_estimatedPayloadBytes === 0) { hint.style.display = 'none'; return; }
+  hint.style.display = 'block';
+  if (_estimatedPayloadBytes < 2048) {
+    hint.className = 'option-hint ok';
+    hint.textContent = `✔ Your file is ${fmtSize(_estimatedPayloadBytes)} — small enough for QR code generation.`;
+  } else {
+    hint.className = 'option-hint warn';
+    hint.textContent = `✖ Your file is ${fmtSize(_estimatedPayloadBytes)} — too large for QR (max ~2 KB). QR will be skipped automatically.`;
+  }
+}
+
+function updateCamoHint() {
+  const hint = document.getElementById('camo-hint');
+  const f = document.getElementById('camoFile').files[0];
+  if (!f) { hint.style.display = 'none'; return; }
+
+  const url = URL.createObjectURL(f);
+  const img = new Image();
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    const totalPixels = img.naturalWidth * img.naturalHeight;
+    const rgbSlotsNeeded = 32 + _estimatedPayloadBytes * 4;
+    const pixelsNeeded   = Math.ceil(rgbSlotsNeeded / 3);
+    const maxPayloadBytes = Math.floor((totalPixels * 3 - 32) / 4);
+    const capacityMB = (maxPayloadBytes / 1048576).toFixed(2);
+
+    hint.style.display = 'block';
+    if (_estimatedPayloadBytes === 0) {
+      hint.className = 'option-hint info';
+      hint.textContent = `ℹ Cover image is ${img.naturalWidth}×${img.naturalHeight}px — can hold up to ${capacityMB} MB of payload. Select files to see if it's enough.`;
+    } else if (pixelsNeeded > totalPixels) {
+      hint.className = 'option-hint warn';
+      hint.textContent = `✖ Cover image too small! This image can only hold ${capacityMB} MB but your payload is ~${fmtSize(_estimatedPayloadBytes)}. Use a larger photo.`;
+    } else {
+      hint.className = 'option-hint ok';
+      hint.textContent = `✔ Cover image is sufficient — ${img.naturalWidth}×${img.naturalHeight}px can hold up to ${capacityMB} MB. Your payload of ~${fmtSize(_estimatedPayloadBytes)} fits.`;
+    }
+  };
+  img.src = url;
+}
+
+function toggleEncryptUI() {
+  document.getElementById('encrypt-fields').style.display =
+    document.getElementById('opt-encrypt').checked ? 'block' : 'none';
+}
+function toggleCamoUI() {
+  document.getElementById('camo-fields').style.display =
+    document.getElementById('opt-camo').checked ? 'block' : 'none';
+}
+
+function updateStrength(pw) {
+  const fill  = document.getElementById('str-fill');
+  const label = document.getElementById('str-label');
+  let score = 0;
+  if (pw.length >= 8)  score++;
+  if (pw.length >= 14) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const levels = [
+    { w:'0%',   bg:'transparent', t:'—' },
+    { w:'20%',  bg:'#c0392b',     t:'Very Weak' },
+    { w:'40%',  bg:'#e67e22',     t:'Weak' },
+    { w:'60%',  bg:'#f1c40f',     t:'Fair' },
+    { w:'80%',  bg:'#27ae60',     t:'Strong' },
+    { w:'100%', bg:'#2ecc71',     t:'Very Strong' },
+  ];
+  const l = levels[score] || levels[0];
+  fill.style.width = l.w; fill.style.background = l.bg; label.textContent = l.t;
+}
+
+async function deriveKey(passphrase, salt) {
+  const enc = new TextEncoder();
+  const keyMat = await crypto.subtle.importKey('raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt, iterations:100000, hash:'SHA-256' },
+    keyMat, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
+  );
+}
+
+async function encryptBytes(data, passphrase) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));
+  const key  = await deriveKey(passphrase, salt);
+  const enc  = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, data);
+  const out = new Uint8Array(1 + 16 + 12 + enc.byteLength);
+  out[0] = 1; 
+  out.set(salt, 1);
+  out.set(iv, 17);
+  out.set(new Uint8Array(enc), 29);
+  return out;
+}
+
+async function decryptBytes(data, passphrase) {
+  if (data[0] !== 1) return data; 
+  const salt = data.slice(1, 17);
+  const iv   = data.slice(17, 29);
+  const ct   = data.slice(29);
+  const key  = await deriveKey(passphrase, salt);
+  const dec  = await crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, ct);
+  return new Uint8Array(dec);
+}
+
+function rgbSlotToIndex(slot) {
+  const pixel = Math.floor(slot / 3);
+  const ch    = slot % 3;
+  return pixel * 4 + ch;
+}
+
+function writeLSBByte(d, rgbSlot, byteVal) {
+  for (let s = 0; s < 4; s++) {
+    const idx = rgbSlotToIndex(rgbSlot + s);
+    const bits = (byteVal >> (6 - s * 2)) & 0x03;
+    d[idx] = (d[idx] & 0xFC) | bits;
+  }
+}
+
+function readLSBByte(d, rgbSlot) {
+  let val = 0;
+  for (let s = 0; s < 4; s++) {
+    const idx = rgbSlotToIndex(rgbSlot + s);
+    val = (val << 2) | (d[idx] & 0x03);
+  }
+  return val;
+}
+
+async function lsbEmbed(d, totalPixels, srcBytes, onProgress) {
+  const CHUNK = 50000;
+  for (let i = 0; i < 4; i++) writeLSBByte(d, i * 4, CAMO_MAGIC[i]);
+
+  const len = srcBytes.length;
+  writeLSBByte(d, 16, (len >>> 24) & 0xFF);
+  writeLSBByte(d, 20, (len >>> 16) & 0xFF);
+  writeLSBByte(d, 24, (len >>>  8) & 0xFF);
+  writeLSBByte(d, 28,  len         & 0xFF);
+
+  for (let i = 0; i < srcBytes.length; i++) {
+    if (i % CHUNK === 0) {
+      onProgress && onProgress(Math.round(i / srcBytes.length * 85), 'Camouflaging…');
+      await yieldFrame();
+    }
+    writeLSBByte(d, 32 + i * 4, srcBytes[i]);
+  }
+}
+
+async function lsbExtract(d, totalPixels, onProgress) {
+  const CHUNK = 50000;
+  const magic = new Uint8Array(4);
+  for (let i = 0; i < 4; i++) magic[i] = readLSBByte(d, i * 4);
+
+  const l0 = readLSBByte(d, 16);
+  const l1 = readLSBByte(d, 20);
+  const l2 = readLSBByte(d, 24);
+  const l3 = readLSBByte(d, 28);
+  const length = ((l0 << 24) | (l1 << 16) | (l2 << 8) | l3) >>> 0; 
+
+  const rgbSlotsAvailable = totalPixels * 3 - 32;
+  if (length === 0 || length > 0x7FFFFFFF || length * 4 > rgbSlotsAvailable) {
+    return { magic, length: -1, payload: null };
+  }
+
+  const payload = new Uint8Array(length);
+  for (let i = 0; i < length; i++) {
+    if (i % CHUNK === 0) {
+      onProgress && onProgress(Math.round(i / length * 60), 'Extracting hidden data…');
+      await yieldFrame();
+    }
+    payload[i] = readLSBByte(d, 32 + i * 4);
+  }
+
+  return { magic, length, payload };
+}
+
+async function packToPNG(payload, camoImg, onProgress) {
+  const rgbSlotsNeeded = 32 + payload.length * 4;
+  const pixelsNeeded   = Math.ceil(rgbSlotsNeeded / 3);
+
+  if (camoImg) {
+    const canvas = document.createElement('canvas');
+    // Using fallback mapping for standard Image vs ImageBitmap properties
+    canvas.width = camoImg.width || camoImg.naturalWidth; 
+    canvas.height = camoImg.height || camoImg.naturalHeight;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(camoImg, 0, 0);
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = imgData.data;
+
+    const totalPixels = canvas.width * canvas.height;
+    if (pixelsNeeded > totalPixels) {
+      throw new Error('Cover image too small for this payload. Use a larger photo.');
+    }
+
+    // ── NEW TRICK: ABSOLUTE ALPHA OVERRIDE ──
+    // This physically prevents mobile browsers from executing pre-multiplied alpha 
+    // rendering which permanently mangles LSB RGB values.
+    for (let i = 3; i < d.length; i += 4) {
+        d[i] = 255;
+    }
+
+    await lsbEmbed(d, totalPixels, payload, onProgress);
+
+    onProgress && onProgress(90, 'Rendering PNG…');
+    await yieldFrame();
+    ctx.putImageData(imgData, 0, 0);
+    return canvas.toDataURL('image/png');
+
+  } else {
+    const pixelsForPayload = Math.ceil(payload.length / 3);
+    const size = Math.ceil(Math.sqrt(pixelsForPayload));
+    const canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.createImageData(size, size);
+    const d = imgData.data;
+
+    const CHUNK = 60000;
+    let p = 0;
+    for (let i = 0; i < payload.length; i += 3) {
+      if (i % CHUNK < 3) {
+        onProgress && onProgress(Math.round(i / payload.length * 85), 'Packing pixels…');
+        await yieldFrame();
+      }
+      const off = p * 4;
+      d[off]   = payload[i]   || 0;
+      d[off+1] = payload[i+1] || 0;
+      d[off+2] = payload[i+2] || 0;
+      d[off+3] = 255;
+      p++;
+    }
+    onProgress && onProgress(90, 'Rendering PNG…');
+    await yieldFrame();
+    ctx.putImageData(imgData, 0, 0);
+    return canvas.toDataURL('image/png');
+  }
+}
+
+async function runEncode(btn) {
+  const files = document.getElementById('encFiles').files;
+  const doEncrypt = document.getElementById('opt-encrypt').checked;
+  const doQR      = document.getElementById('opt-qr').checked;
+  const doCamo    = document.getElementById('opt-camo').checked;
+  const passphrase = document.getElementById('enc-pass').value;
+
+  document.getElementById('enc-status').style.display = 'none';
+  document.getElementById('qr-container').style.display = 'none';
+
+  if (!files.length) { showStatus('enc-status','error','❌ Please select at least one file.'); return; }
+  if (doEncrypt && !passphrase.trim()) { showStatus('enc-status','error','❌ Please enter a passphrase for encryption.'); return; }
+  if (doCamo && !document.getElementById('camoFile').files[0]) {
+    showStatus('enc-status','error','❌ Please select a cover image for camouflage mode.');
+    return;
+  }
+
+  btn.disabled = true;
+  setProgress('enc', 0, 'Reading files…');
+
+  try {
+    setProgress('enc', 5, 'Bundling files…');
+    await yieldFrame();
+
+    const zip = new JSZip();
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      setProgress('enc', 5 + Math.round(i/files.length*20), `Reading ${f.name}…`);
+      await yieldFrame();
+      const buf = await f.arrayBuffer();
+      zip.file(f.name, buf);
+    }
+
+    setProgress('enc', 25, 'Compressing…');
+    await yieldFrame();
+
+    const zipBytes = await zip.generateAsync({ type:'uint8array', compression:'DEFLATE', compressionOptions:{ level:6 } },
+      meta => { setProgress('enc', 25 + Math.round(meta.percent * 0.2), 'Compressing…'); }
+    );
+
+    let finalBytes = zipBytes;
+    if (doEncrypt) {
+      setProgress('enc', 46, 'Encrypting (AES-256)…');
+      await yieldFrame();
+      const withFlag = await encryptBytes(zipBytes, passphrase);
+      finalBytes = withFlag;
+    } else {
+      const flagged = new Uint8Array(1 + finalBytes.length);
+      flagged[0] = 0;
+      flagged.set(finalBytes, 1);
+      finalBytes = flagged;
+    }
+
+    const totalLen = 8 + finalBytes.length;
+    const payload = new Uint8Array(totalLen);
+    payload.set(MAGIC, 0);
+    payload[4] = (finalBytes.length >>> 24) & 0xFF;
+    payload[5] = (finalBytes.length >>> 16) & 0xFF;
+    payload[6] = (finalBytes.length >>> 8)  & 0xFF;
+    payload[7] =  finalBytes.length         & 0xFF;
+    payload.set(finalBytes, 8);
+
+    setProgress('enc', 50, 'Building PNG…');
+    await yieldFrame();
+
+    let camoImg = null;
+    if (doCamo) {
+      const camoFile = document.getElementById('camoFile').files[0];
+      if (camoFile) {
+        // Loads image fully stripped of tricky metadata
+        camoImg = await loadRawImage(camoFile);
+      }
+    }
+
+    const dataURL = await packToPNG(payload, camoImg, (pct, msg) => setProgress('enc', 50 + Math.round(pct * 0.45), msg));
+
+    setProgress('enc', 97, 'Preparing download…');
+    await yieldFrame();
+
+    const fname = files.length === 1 ? `GSEAL_${files[0].name}.png` : `GSEAL_vault_${Date.now()}.png`;
+    const link = document.createElement('a');
+    link.download = fname;
+    link.href = dataURL;
+    link.click();
+
+    setProgress('enc', 100, 'Complete ✦');
+    const sizeMB = (payload.length / 1048576).toFixed(2);
+    showStatus('enc-status','success',
+      `✦ Sealed successfully!\n📄 File: ${fname}\n📦 ${files.length} file(s) bundled\n` +
+      `${doEncrypt ? '🔐 AES-256 encrypted\n' : ''}${doCamo ? '🖼 Camouflaged in cover photo\n' : ''}` +
+      `📏 Total payload: ${sizeMB} MB`
+    );
+
+    if (doQR) {
+      if (payload.length < 2048) {
+        document.getElementById('qrcode').innerHTML = '';
+        new QRCode(document.getElementById('qrcode'), {
+          text: dataURL.slice(0, 2000),
+          width: 200, height: 200,
+          colorDark: '#c9a84c', colorLight: '#0c1220'
+        });
+        document.getElementById('qr-container').style.display = 'block';
+      } else {
+        showStatus('enc-status','info',
+          document.getElementById('enc-status').innerHTML +
+          '\n\n⚠ QR skipped — file too large for QR encoding (max ~2 KB).'
+        );
+      }
+    }
+
+  } catch (err) {
+    console.error(err);
+    showStatus('enc-status','error', `❌ Error: ${err.message}`);
+  } finally {
+    btn.disabled = false;
+    setTimeout(() => hideProgress('enc'), 2000);
+  }
+}
+
+async function runDecode(btn) {
+  const file = document.getElementById('decFile').files[0];
+  const passphrase = document.getElementById('dec-pass').value;
+
+  document.getElementById('dec-status').style.display = 'none';
+
+  if (!file) { showStatus('dec-status','error','❌ Please select a sealed PNG.'); return; }
+
+  btn.disabled = true;
+  setProgress('dec', 0, 'Loading PNG…');
+
+  try {
+    // Decoding using Raw Loader to prevent Android Color Gamut shifting
+    const img = await loadRawImage(file);
+
+    setProgress('dec', 8, 'Extracting pixels…');
+    await yieldFrame();
+
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width || img.naturalWidth; 
+    canvas.height = img.height || img.naturalHeight;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(img, 0, 0);
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const pixelData = imgData.data;
+    const totalPixels = canvas.width * canvas.height;
+
+    let dataBytes;
+    let isCamo = false; 
+
+    let camoAttempted = false;
+    if (totalPixels >= 6) {
+      const lsb0 = readLSBByte(pixelData, 0);
+      const lsb1 = readLSBByte(pixelData, 4);
+      const lsb2 = readLSBByte(pixelData, 8);
+      const lsb3 = readLSBByte(pixelData, 12);
+      const camoMagicMatch = (lsb0 === CAMO_MAGIC[0] && lsb1 === CAMO_MAGIC[1] &&
+                              lsb2 === CAMO_MAGIC[2] && lsb3 === CAMO_MAGIC[3]);
+      if (camoMagicMatch) {
+        camoAttempted = true;
+        setProgress('dec', 18, 'Detected camouflage vault — extracting LSBs…');
+        await yieldFrame();
+
+        const camoResult = await lsbExtract(pixelData, totalPixels, (pct, msg) => {
+          setProgress('dec', 18 + Math.round(pct * 0.4), msg);
+        });
+
+        if (camoResult.payload && camoResult.length > 0) {
+          const cb = camoResult.payload;
+          if (cb.length >= 8 &&
+              cb[0] === MAGIC[0] && cb[1] === MAGIC[1] &&
+              cb[2] === MAGIC[2] && cb[3] === MAGIC[3]) {
+            const innerLen = ((cb[4] << 24) | (cb[5] << 16) | (cb[6] << 8) | cb[7]) >>> 0;
+            if (innerLen > 0 && 8 + innerLen <= cb.length) {
+              isCamo = true;
+              dataBytes = cb.slice(8, 8 + innerLen);
+              setProgress('dec', 60, 'Camouflage extracted — validating…');
+              await yieldFrame();
+            }
+          }
+        }
+      }
+    }
+
+    if (!isCamo) {
+      setProgress('dec', 15, camoAttempted
+        ? 'Camo check inconclusive — trying standard vault…'
+        : 'Reading RGB data…');
+      await yieldFrame();
+
+      const raw = new Uint8Array(totalPixels * 3);
+      const CHUNK = 60000;
+      for (let i = 0, j = 0; i < pixelData.length; i += 4) {
+        if (i % (CHUNK * 4) < 4) {
+          setProgress('dec', 15 + Math.round(i / pixelData.length * 30), 'Reading pixels…');
+          await yieldFrame();
+        }
+        raw[j++] = pixelData[i];
+        raw[j++] = pixelData[i+1];
+        raw[j++] = pixelData[i+2];
+      }
+
+      setProgress('dec', 48, 'Validating vault…');
+      await yieldFrame();
+
+      if (raw[0] !== MAGIC[0] || raw[1] !== MAGIC[1] ||
+          raw[2] !== MAGIC[2] || raw[3] !== MAGIC[3]) {
+        throw new Error('Not a valid GodStorage sealed PNG.\nMake sure you have the right file and that it was created by GodStorage.');
+      }
+
+      const dataLen = ((raw[4] << 24) | (raw[5] << 16) | (raw[6] << 8) | raw[7]) >>> 0;
+      if (dataLen === 0 || 8 + dataLen > raw.length) throw new Error('Corrupted vault — length mismatch.');
+      dataBytes = raw.slice(8, 8 + dataLen);
+    }
+
+    const isEncrypted = dataBytes[0] === 1;
+    setProgress('dec', 65, isEncrypted ? 'Decrypting…' : 'Decompressing…');
+    await yieldFrame();
+
+    if (isEncrypted) {
+      if (!passphrase) throw new Error('This vault is encrypted. Please enter the passphrase.');
+      try {
+        dataBytes = await decryptBytes(dataBytes, passphrase);
+      } catch(e) {
+        throw new Error('Decryption failed — wrong passphrase or corrupted data.');
+      }
+    } else {
+      dataBytes = dataBytes.slice(1); 
+    }
+
+    setProgress('dec', 78, 'Unpacking files…');
+    await yieldFrame();
+
+    const zip = await JSZip.loadAsync(dataBytes);
+    const zipFiles = Object.keys(zip.files).filter(n => !zip.files[n].dir);
+
+    setProgress('dec', 88, `Restoring ${zipFiles.length} file(s)…`);
+    await yieldFrame();
+
+    let restored = 0;
+    for (const name of zipFiles) {
+      setProgress('dec', 88 + Math.round(restored / zipFiles.length * 10), `Downloading ${name}…`);
+      await yieldFrame();
+      const content = await zip.files[name].async('uint8array');
+      const blob = new Blob([content], { type:'application/octet-stream' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      await new Promise(r => setTimeout(r, 200));
+      restored++;
+    }
+
+    setProgress('dec', 100, 'Complete ✦');
+    showStatus('dec-status','success',
+      `🎉 Vault unsealed!\n` +
+      zipFiles.map(n => `📄 ${n}`).join('\n') +
+      `\n\n${isCamo ? '🖼 Camouflage decoded\n' : ''}` +
+      `${isEncrypted ? '🔐 Decrypted successfully' : '📦 No encryption detected'}`
+    );
+
+  } catch (err) {
+    console.error(err);
+    showStatus('dec-status','error', `❌ ${err.message}`);
+  } finally {
+    btn.disabled = false;
+    setTimeout(() => hideProgress('dec'), 2000);
+  }
+}
+</script>
+</body>
+</html>
